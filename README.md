@@ -1,3 +1,6 @@
+# Wanrning：Do not use this branch because the modifications have introduced several bugs and it has lost its core functionality. 
+         Please use the code from the original author's repository instead.
+
 # OpenTailcat
 
 Android client for Tailcat. Paste a `tc…` token and connect to **your** gateway — no control plane in the middle.
