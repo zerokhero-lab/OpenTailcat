@@ -43,7 +43,7 @@ You run a Tailcat-compatible exit gateway. It gives you a short token. OpenTailc
 ## Notes
 
 - Builds are development-signed unless you set `OPENTAILCAT_RELEASE_*`. Uninstall an older development install if Android blocks the upgrade.
-- More detail: [`docs/releases/`](docs/releases/), [`AGENTS.md`](AGENTS.md), [`handoff.md`](handoff.md).
+- More detail: [`docs/releases/`](docs/releases/),  [`AGENTS.md`](AGENTS.md), [`handoff.md`](handoff.md).
 
 ## License
 
