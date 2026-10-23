@@ -410,9 +410,22 @@ class TailcatVpnService : VpnService() {
         if (defaultRoutes) {
             builder.addDnsServer(dnsIp)
         }
-        for (route in VpnInterfaceSpec.defaultRoutes(defaultRoutes)) {
-            builder.addRoute(route.address, route.prefixLength)
-        }
+        // 1. 彻底干掉全局路由！防止看视频的流量挤爆你的 3M 云服务器带宽。
+        // 2. 仅允许 Tailcat 协议专用的本地/虚拟网络网段（100.64.0.0/10）进入隧道。
+        builder.addRoute("100.64.0.0", 10)
+
+         // 3. 强制开启分流旁路放行（关键防断网参数）
+         // 当手机访问百度、YouTube 等非 100.64 网段的公网 IP 时，系统会无缝直接走原手机物理网卡出去，公网满血复活！
+         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+             builder.allowBypass()
+          }
+
+// 4. 【额外带宽防护罩】：如果非要精细化卡死，也可以在此处只对你们聊天的浏览器进行代理（以 Via 浏览器为例）
+// try {
+//     builder.addAllowedApplication("com.via.browser")
+// } catch (e: Exception) {
+//     // 若手机没装 Via 则默认放行整个系统
+// }
         return builder
     }
 
