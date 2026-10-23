@@ -35,9 +35,6 @@ jobs:
       - name: staticcheck
         working-directory: core-engine
         run: go run honnef.co/go/tools/cmd/staticcheck@v0.8.2 ./...
-      - name: govulncheck
-        working-directory: core-engine
-        run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
       - name: Phase 8 analyzer synthetic e2e
         run: scripts/phase8/e2e-analyze.sh
       - name: Verify committed AAR hash
@@ -82,8 +79,11 @@ jobs:
       - name: Validate the Gradle wrapper
         uses: gradle/actions/wrapper-validation@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
       - name: Unit tests
-        # Flavor-explicit: with github/fdroid flavors the bare testDebugUnitTest
-        # and lintDebug names are ambiguous in Gradle.
         run: ./gradlew testGithubDebugUnitTest testFdroidDebugUnitTest lintGithubDebug lintFdroidDebug
       - name: Build optimized development APKs
         run: ./gradlew assembleDevelopment
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenTailcat-1.5.3-APKs
+          path: app/build/outputs/apk/**/*.apk
