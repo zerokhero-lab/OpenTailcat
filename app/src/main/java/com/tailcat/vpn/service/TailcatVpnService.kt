@@ -410,22 +410,27 @@ class TailcatVpnService : VpnService() {
         if (defaultRoutes) {
             builder.addDnsServer(dnsIp)
         }
-        // 1. 彻底干掉全局路由！防止看视频的流量挤爆你的 3M 云服务器带宽。
-        // 2. 仅允许 Tailcat 协议专用的本地/虚拟网络网段（100.64.0.0/10）进入隧道。
-        builder.addRoute("100.64.0.0", 10)
+        // 彻底废除原作者的全局 0.0.0.0/0 路由转发！
+// 我们只把私有局域网段和虚拟内网网段加入 VPN 路由表。
+// 这样无论朋友用什么浏览器（Chrome、Edge、系统自带），访问这些内网 IP 时都会走隧道，而看视频、看百度自动走手机流量！
 
-         // 3. 强制开启分流旁路放行（关键防断网参数）
-         // 当手机访问百度、YouTube 等非 100.64 网段的公网 IP 时，系统会无缝直接走原手机物理网卡出去，公网满血复活！
-         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-             builder.allowBypass()
-          }
+try {
+    // 1. 放行 Tailcat 默认的虚拟网段（以防万一）
+    builder.addRoute("100.64.0.0", 10)
+    
+    // 2. 放行你 Windows 服务器所在的常见物理局域网段（这样朋友们在手机上输入 192.168.x.x 就能直接连上）
+    builder.addRoute("192.168.0.0", 16)
+    builder.addRoute("172.16.0.0", 12)
+    builder.addRoute("10.0.0.0", 8)
+    
+} catch (e: Exception) {
+    // 捕捉可能存在的网络掩码格式异常，防止 App 闪退
+}
 
-// 4. 【额外带宽防护罩】：如果非要精细化卡死，也可以在此处只对你们聊天的浏览器进行代理（以 Via 浏览器为例）
-// try {
-//     builder.addAllowedApplication("com.via.browser")
-// } catch (e: Exception) {
-//     // 若手机没装 Via 则默认放行整个系统
-// }
+// 3. 开启允许分流绕过（Split Tunneling 核心底层开关）
+if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+    builder.allowBypass()
+}
         return builder
     }
 
